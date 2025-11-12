@@ -17,64 +17,41 @@ int main()
 
         if (N == 0)
         {
-            cout << 10 << "\n";
+            cout << 10 << endl;
             continue;
         }
 
         if (N >= 1 && N <= 9)
         {
-            cout << N << "\n";
+            cout << N << endl;
             continue;
         }
 
         vector<int> digitos;
+
         for (int d = 9; d >= 2; --d)
         {
-            cout << "N: " << N << " d: " << d << "\n";
-
             while (N % d == 0)
             {
-                cout << N << "%" << d << "== 0" << "\n";
-                cout << N << " = " << N << " / " << d << "\n";
-                N /= d;
+                N = N / d;
 
-                cout << "  dividido por " << d << " = " << N << "\n";
                 digitos.push_back(d);
             }
         }
 
         if (N != 1)
-        { // sobrou fator > 9
-            cout << -1 << "\n";
+        {
+            cout << -1 << endl;
             continue;
         }
 
-        // imprimir conteúdo atual de digitos (antes de ordenar)
-        for (size_t j = 0; j < digitos.size(); ++j)
-        {
-            if (j)
-                cout << ' ';
-            cout << digitos[j];
-        }
-        cout << '\n';
-
         sort(digitos.begin(), digitos.end());
 
-        // menor número possível
-
-        cout << "vetor organizado   : ";
-        for (size_t j = 0; j < digitos.size(); ++j)
+        for (int i = 0; i < digitos.size(); i++)
         {
-            if (j)
-                cout << ' ';
-            cout << digitos[j];
+            cout << digitos[i];
         }
-        cout << '\n';
-
-        for (int x : digitos)
-            cout << x;
-        cout << "\n";
-        continue;
+        cout << endl;
     }
 
     return 0;
