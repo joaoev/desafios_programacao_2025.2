@@ -4,75 +4,80 @@ using namespace std;
 const long long INF = 1e18;
 const int MAXN = 100005;
 
-vector<pair<int, int>> adj[MAXN];
+vector<pair<int, int>> lista_adjacencia[MAXN];
 
-long long dist[MAXN][2];
+long long menor_custo[MAXN][2];
 
-int n, m;
+int qtd_cidades, qtd_voos;
 
-struct Node
+struct Estado
 {
-    long long d;
-    int u;
-    int f;
+    long long custo_acumulado;
+    int cidade_atual;
+    int cupom_usado;
 
-    bool operator>(const Node &other) const
+    bool operator>(const Estado &outro) const
     {
-        return d > other.d;
+        return custo_acumulado > outro.custo_acumulado;
     }
 };
 
 void dijkstra()
 {
-    for (int i = 1; i <= n; i++)
+    for (int i = 1; i <= qtd_cidades; i++)
     {
-        dist[i][0] = INF;
-        dist[i][1] = INF;
+        menor_custo[i][0] = INF;
+        menor_custo[i][1] = INF;
     }
 
-    priority_queue<Node, vector<Node>, greater<Node>> q;
+    priority_queue<Estado, vector<Estado>, greater<Estado>> fila_prioridade;
 
-    dist[1][0] = 0;
-    q.push({0, 1, 0});
+    menor_custo[1][0] = 0;
+    fila_prioridade.push({0, 1, 0});
 
-    while (!q.empty())
+    while (!fila_prioridade.empty())
     {
-        Node atual = q.top();
-        q.pop();
+        Estado atual = fila_prioridade.top();
+        fila_prioridade.pop();
 
-        long long d = atual.d;
-        int u = atual.u;
-        int f = atual.f;
+        long long custo_acumulado = atual.custo_acumulado;
+        int cidade_atual = atual.cidade_atual;
+        int cupom_usado = atual.cupom_usado;
 
-        if (d > dist[u][f])
+        if (custo_acumulado > menor_custo[cidade_atual][cupom_usado])
             continue;
 
-        for (auto edge : adj[u])
+        for (auto voo : lista_adjacencia[cidade_atual])
         {
-            int w = edge.first;
-            int v = edge.second;
+            int preco_voo = voo.first;
+            int cidade_destino = voo.second;
 
-            if (f == 1)
+            // Caso o cupom ja tenha sido usado
+            // Somente podemos pagar o preco cheio do voo
+            if (cupom_usado == 1)
             {
-                if (dist[u][1] + w < dist[v][1])
+                if (menor_custo[cidade_atual][1] + preco_voo < menor_custo[cidade_destino][1])
                 {
-                    dist[v][1] = dist[u][1] + w;
-                    q.push({dist[v][1], v, 1});
+                    menor_custo[cidade_destino][1] = menor_custo[cidade_atual][1] + preco_voo;
+                    fila_prioridade.push({menor_custo[cidade_destino][1], cidade_destino, 1});
                 }
             }
 
-            if (f == 0)
+            // Caso o cupom nao tenha sido usado
+            if (cupom_usado == 0)
             {
-                if (dist[u][0] + w < dist[v][0])
+                // Preço normal
+                if (menor_custo[cidade_atual][0] + preco_voo < menor_custo[cidade_destino][0])
                 {
-                    dist[v][0] = dist[u][0] + w;
-                    q.push({dist[v][0], v, 0});
+                    menor_custo[cidade_destino][0] = menor_custo[cidade_atual][0] + preco_voo;
+                    fila_prioridade.push({menor_custo[cidade_destino][0], cidade_destino, 0});
                 }
 
-                if (dist[u][0] + (w / 2) < dist[v][1])
+                // Preço com desconto
+                if (menor_custo[cidade_atual][0] + (preco_voo / 2) < menor_custo[cidade_destino][1])
                 {
-                    dist[v][1] = dist[u][0] + (w / 2);
-                    q.push({dist[v][1], v, 1});
+                    menor_custo[cidade_destino][1] = menor_custo[cidade_atual][0] + (preco_voo / 2);
+                    fila_prioridade.push({menor_custo[cidade_destino][1], cidade_destino, 1});
                 }
             }
         }
@@ -84,17 +89,16 @@ int main()
     ios::sync_with_stdio(false);
     cin.tie(NULL);
 
-    cin >> n >> m;
-    for (int i = 0; i < m; i++)
+    cin >> qtd_cidades >> qtd_voos;
+    for (int i = 0; i < qtd_voos; i++)
     {
         int a, b, c;
         cin >> a >> b >> c;
-        adj[a].push_back({c, b});
+        lista_adjacencia[a].push_back({c, b});
     }
 
     dijkstra();
 
-    cout << dist[n][1] << endl;
-
+    cout << menor_custo[qtd_cidades][1] << endl;
     return 0;
 }

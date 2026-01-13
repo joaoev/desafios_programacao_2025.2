@@ -7,40 +7,40 @@ typedef pair<ll, int> pli;
 const ll INF = 1e18;
 const int MAXN = 100005;
 
-vector<pli> adj[MAXN];
-ll dist[MAXN];
+vector<pli> lista_adjacencia[MAXN];
+ll menor_distancia_atual[MAXN];
 int n, m;
 
 void dijkstra(int start)
 {
     for (int i = 1; i <= n; i++)
     {
-        dist[i] = INF;
+        menor_distancia_atual[i] = INF;
     }
 
-    priority_queue<pli, vector<pli>, greater<pli>> q;
+    priority_queue<pli, vector<pli>, greater<pli>> fila;
 
-    dist[start] = 0;
-    q.push({0, start});
+    menor_distancia_atual[start] = 0;
+    fila.push({0, start});
 
-    while (!q.empty())
+    while (!fila.empty())
     {
-        ll d_atual = q.top().first;
-        int u = q.top().second;
-        q.pop();
+        ll distancia_atual = fila.top().first;
+        int no_atual = fila.top().second;
+        fila.pop();
 
-        if (d_atual > dist[u])
+        if (distancia_atual > menor_distancia_atual[no_atual])
             continue;
 
-        for (auto edge : adj[u])
+        for (auto aresta : lista_adjacencia[no_atual])
         {
-            ll peso = edge.first;
-            int v = edge.second;
+            ll peso_aresta = aresta.first;
+            int no_vizinho = aresta.second;
 
-            if (dist[u] + peso < dist[v])
+            if (menor_distancia_atual[no_atual] + peso_aresta < menor_distancia_atual[no_vizinho])
             {
-                dist[v] = dist[u] + peso;
-                q.push({dist[v], v});
+                menor_distancia_atual[no_vizinho] = menor_distancia_atual[no_atual] + peso_aresta;
+                fila.push({menor_distancia_atual[no_vizinho], no_vizinho});
             }
         }
     }
@@ -59,14 +59,14 @@ int main()
             ll w;
             cin >> a >> b >> w;
 
-            adj[a].push_back({w, b});
+            lista_adjacencia[a].push_back({w, b});
         }
 
         dijkstra(1);
 
         for (int i = 1; i <= n; i++)
         {
-            cout << dist[i] << " ";
+            cout << menor_distancia_atual[i] << " ";
         }
         cout << "\n";
     }
